@@ -7,3 +7,21 @@ services:
       - "8002:80"
     volumes:
       - ./:/var/www
+    environment:
+      - DATABASE_URL=pgsql:host=${DB_HOST};port=${DB_PORT};dbname=${DB_NAME};user=${DB_USER};password=${DB_PASS}
+
+  db:
+    image: postgres:15
+    container_name: usersmanager-db
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+    ports:
+      - "${DB_PORT}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
