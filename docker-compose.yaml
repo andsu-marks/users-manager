@@ -1,0 +1,9 @@
+services:
+  php:
+    build: .
+    image: php:8.2-apache
+    container_name: usersmanager-php
+    ports:
+      - "8002:80"
+    volumes:
+      - ./:/var/www
