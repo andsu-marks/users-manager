@@ -19,4 +19,11 @@ class UsersController {
         $response->getBody()->write(json_encode($data, JSON_PRETTY_PRINT));
         return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
     }
+
+    public function create(Request $request, Response $response): Response {
+        $body = $request->getParsedBody();
+        $user = $this->service->createUser($body['name'], $body['email'], $body['password']);
+        $response->getBody()->write(json_encode($user->toArray(), JSON_PRETTY_PRINT));
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(201);
+    }
 }
