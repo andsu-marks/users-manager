@@ -8,7 +8,7 @@ $dotenv = Dotenv::createImmutable(__DIR__ . '/../');
 $dotenv->safeLoad();
 
 $app = AppFactory::create();
-
+$app->addBodyParsingMiddleware();
 (require __DIR__ . '/../src/routes.php')($app);
 
 $app->run();

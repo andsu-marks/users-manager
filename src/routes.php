@@ -11,4 +11,5 @@ return function (App $app) {
     });
 
     $app->get('/users', [UsersController::class, 'getAll']);
+    $app->post('/users', [UsersController::class, 'create']);
 };

@@ -15,7 +15,6 @@ class UsersRepository {
     public function getAll(): array {
         $sql = 'SELECT * FROM users ORDER BY id DESC';
         $stmt = $this->connection->query($sql);
-
         $users = [];
 
         while($row = $stmt->fetch()) {
@@ -30,5 +29,29 @@ class UsersRepository {
         }
 
         return $users;
+    }
+
+    public function create(User $user): User {
+        $sql = 'INSERT INTO users (name, email, password)
+            VALUES (:name, :email, :password)
+            RETURNING id, created_at, updated_at
+        ';
+        $stmt = $this->connection->prepare($sql);
+
+        $stmt->execute([
+            ':name' => $user->getName(),
+            ':email' => $user->getEmail(),
+            ':password' => $user->getPassword()
+        ]);
+
+        $row = $stmt->fetch();
+        return new User(
+            $row['id'],
+            $user->getName(),
+            $user->getEmail(),
+            $user->getPassword(),
+            $row['created_at'],
+            $row['updated_at']
+        );
     }
 }
