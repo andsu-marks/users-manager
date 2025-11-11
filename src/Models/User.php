@@ -1,7 +1,7 @@
 <?php
 namespace Src\Models;
 
-class User {
+class User implements \JsonSerializable {
     private ?int $id;
     private string $name;
     private string $email;
@@ -36,7 +36,7 @@ class User {
     public function setPassword(string $password): void { $this->password = $password; }
     public function setEmail(string $email): void { $this->email = $email; }
 
-    public function toArray(): array {
+    public function jsonSerialize(): mixed {
         return [
             'id' => $this->id,
             'name' => $this->name,
