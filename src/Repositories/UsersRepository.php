@@ -54,4 +54,21 @@ class UsersRepository {
             $row['updated_at']
         );
     }
+
+    public function getByEmail(string $email): ?USer {
+        $sql = 'SELECT * FROM users WHERE email = :email LIMIT 1';
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute([':email' => $email]);
+        $row = $stmt->fetch();
+
+        if (!$row) return null;
+        return new User(
+            $row['id'],
+            $row['name'],
+            $row['email'],
+            $row['password'],
+            $row['created_at'],
+            $row['updated_at']
+        );
+    }
 }

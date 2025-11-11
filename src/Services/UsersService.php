@@ -3,6 +3,7 @@ namespace Src\Services;
 
 use Src\Repositories\UsersRepository;
 use Src\Models\User;
+use Exception;
 
 class UsersService {
     private Usersrepository $repository;
@@ -16,6 +17,9 @@ class UsersService {
     }
 
     public function createUser(string $name, string $email, string $password): User {
+        $existingUser = $this->repository->getByEmail($email);
+        if ($existingUser) throw new Exception('E-mail already registered!'); 
+
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
         $user = new User(null, $name, $email, $hashedPassword);
         return $this->repository->create($user);
