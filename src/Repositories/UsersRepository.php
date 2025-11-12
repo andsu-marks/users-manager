@@ -71,4 +71,21 @@ class UsersRepository {
             $row['updated_at']
         );
     }
+
+    public function getById(int $id): ?User {
+        $sql = 'SELECT * FROM users WHERE id = :id LIMIT 1';
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute([':id' => $id]);
+        $row = $stmt->fetch();
+
+        if (!$row) return null;
+        return new User(
+            $row['id'],
+            $row['name'],
+            $row['email'],
+            $row['password'],
+            $row['created_at'],
+            $row['updated_at']
+        );
+    }
 }
