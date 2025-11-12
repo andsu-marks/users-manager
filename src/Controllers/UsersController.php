@@ -15,7 +15,7 @@ class UsersController {
 
     public function getAll(Request $request, Response $response): Response {
         $users = $this->service->getAllUsers();
-        $data = array_map(fn($user) => $user->toArray(), $users);
+        $data = array_map(fn($user) => $user->jsonSerialize(), $users);
 
         $response->getBody()->write(json_encode($data, JSON_PRETTY_PRINT));
         return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
@@ -44,4 +44,22 @@ class UsersController {
             return $response->withHeader('Content-Type', 'application/json')->withStatus(409);
         }
     }
+
+    public function getById(Request $request, Response $response, array $args): Response {
+        $id = (int)($args['id'] ?? 0);
+
+        if ($id <= 0) {
+            $response->getBody()->write(json_encode(['error' => 'Invalid ID!']));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
+
+        try {
+            $user = $this->service->getUserById($id);
+            $response->getBody()->write(json_encode($user->jsonSerialize(), JSON_PRETTY_PRINT));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+        } catch (Exception $error) {
+            $response->getBody()->write(json_encode(['error' => $error->getMessage()]));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
+    } 
 }

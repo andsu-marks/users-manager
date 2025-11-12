@@ -24,4 +24,12 @@ class UsersService {
         $user = new User(null, $name, $email, $hashedPassword);
         return $this->repository->create($user);
     }
+
+    public function getUserById(int $id): ?User {
+        $user = $this->repository->getById($id);
+        if (!$user) {
+            throw new Exception('User not found :/');
+        }
+        return $user;
+    }
 }
