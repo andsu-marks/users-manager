@@ -135,4 +135,10 @@ class UsersRepository {
 
         if ($stmt->rowCount() === 0) throw new Exception('Failed to delete user!');
     }
+
+    public function countAll(): int {
+        $sql = "SELECT COUNT(*) FROM users";
+        $stmt = $this->connection->query($sql);
+        return (int)$stmt->fetchColumn();
+    }
 }

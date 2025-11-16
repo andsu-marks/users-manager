@@ -15,7 +15,20 @@ class UsersService {
     public function getAllUsers(int $page, int $perPage): array {
         if ($page < 1) $page = 1;
         if ($perPage < 1) $perPage = 10;
-        return $this->repository->getAll($page, $perPage);
+
+        $totalRecords = $this->repository->countAll();
+        $totalPages = ceil($totalRecords / $perPage);
+
+        if ($page > $totalPages && $totalPages > 0) $page = $totalPages;
+
+        $users = $this->repository->getAll($page, $perPage);
+        return [
+            'current_page' =>$page,
+            'per_page' =>$perPage,
+            'total_records' => $totalRecords,
+            'total_pages' => $totalPages,
+            'data' => $users
+        ];
     }
 
     public function createUser(string $name, string $email, string $password): User {
