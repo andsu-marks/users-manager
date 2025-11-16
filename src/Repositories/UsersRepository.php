@@ -13,9 +13,13 @@ class UsersRepository {
         $this->connection = Database::getConnection();
     }
 
-    public function getAll(): array {
-        $sql = 'SELECT * FROM users ORDER BY id DESC';
-        $stmt = $this->connection->query($sql);
+    public function getAll(int $page, int $perPage): array {
+        $limit = $perPage;
+        $offset = ($page - 1) * $perPage;
+
+        $sql = 'SELECT * FROM users ORDER BY id DESC LIMIT :limit OFFSET :offset';
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute([':limit' => $limit, ':offset' => $offset]);
         $users = [];
 
         while($row = $stmt->fetch()) {
