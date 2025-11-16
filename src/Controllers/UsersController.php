@@ -100,4 +100,21 @@ class UsersController {
             return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
         }
     }
+
+    public function getByEmail(Request $request, Response $response, array $args): Response {
+        $email = $request->getQueryParams()['email'] ?? '';
+        if ($email === '') {
+            $response->getBody()->write(json_encode(['error' => 'Invalid e-mail!']));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
+
+        try {
+            $user = $this->service->getUserByEmail($email);
+            $response->getBody()->write(json_encode($user->jsonSerialize(), JSON_PRETTY_PRINT));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+        } catch (Exception $error) {
+            $response->getBody()->write(json_encode(['error' => $error->getMessage()]));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
+    }
 }
