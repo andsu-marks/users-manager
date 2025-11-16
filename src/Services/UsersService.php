@@ -12,8 +12,10 @@ class UsersService {
         $this->repository = new UsersRepository;
     }
 
-    public function getAllUsers(): array {
-        return $this->repository->getAll();
+    public function getAllUsers(int $page, int $perPage): array {
+        if ($page < 1) $page = 1;
+        if ($perPage < 1) $perPage = 10;
+        return $this->repository->getAll($page, $perPage);
     }
 
     public function createUser(string $name, string $email, string $password): User {

@@ -14,11 +14,18 @@ class UsersController {
     }
 
     public function getAll(Request $request, Response $response): Response {
-        $users = $this->service->getAllUsers();
-        $data = array_map(fn($user) => $user->jsonSerialize(), $users);
+        $query = $request->getQueryParams();
+        $page = isset($query['page']) ? (int)$query['page'] : 1;
+        $perPage = isset($query['per_page']) ? (int)$query['per_page'] : 10;
 
-        $response->getBody()->write(json_encode($data, JSON_PRETTY_PRINT));
-        return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+        try {
+            $users = $this->service->getAllUsers($page, $perPage);
+            $response->getBody()->write(json_encode($users, JSON_PRETTY_PRINT));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+        } catch (Exception $error) {
+            $response->getBody()->write(json_encode(['error' => $error->getMessage()]));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
     }
 
     public function create(Request $request, Response $response): Response {
