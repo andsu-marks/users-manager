@@ -16,4 +16,5 @@ return function (App $app) {
     $app->get('/users/{id}', [UsersController::class, 'getById']);
     $app->put('/users/{id}', [UsersController::class, 'update']);
     $app->delete('/users/{id}', [UsersController::class, 'delete']);
+    $app->put('/users/{id}/password', [UsersController::class, 'updatePassword']);
 };

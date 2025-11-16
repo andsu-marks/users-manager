@@ -141,4 +141,10 @@ class UsersRepository {
         $stmt = $this->connection->query($sql);
         return (int)$stmt->fetchColumn();
     }
+
+    public function updatePassword(User $user): void {
+        $sql = "UPDATE users SET password = :password, updated_at = NOW() WHERE id = :id";
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute([':password' => $user->getPassword(), ':id' => $user->getId()]);
+    }
 }
