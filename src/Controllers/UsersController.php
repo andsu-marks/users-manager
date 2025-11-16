@@ -135,4 +135,26 @@ class UsersController {
             return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
         }
     }
+
+    public function updatePassword(Request $request, Response $response, array $args): Response {
+        $id = (int)($args['id'] ?? 0);
+        $body = $request->getParsedBody();
+
+        $oldPassword = $body['old_password'] ?? '';
+        $newPassword = $body['new_password'] ?? '';
+
+        if ($id <= 0 || empty($oldPassword) || empty($newPassword)) {
+            $response->getBody()->write(json_encode(['error' => 'Invalid data!']));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
+
+        try {
+            $this->service->updatePassword($id, $oldPassword, $newPassword);
+            $response->getBody()->write(json_encode(['success' => true]));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+        } catch (Exception $error) {
+            $response->getBody()->write(json_encode(['error' => $error->getMessage()]));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
+    }
 }

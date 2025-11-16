@@ -74,4 +74,13 @@ class UsersService {
         if (!$user) throw new Exception('User not found :/');
         return $user;
     }
+
+    public function updatePassword(int $id, string $oldPassword, string $newPassword): void {
+        $user = $this->repository->getById($id);
+        if (!$user) throw new Exception('User not found :/');
+        if (!password_verify($oldPassword, $user->getPassword())) throw new Exception('Old password is incorrect!');
+        $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+        $user->setPassword($hashedPassword);
+        $this->repository->updatePassword($user);
+    }
 }
