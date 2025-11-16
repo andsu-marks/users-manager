@@ -47,4 +47,10 @@ class UsersService {
 
         return $this->repository->update($user);
     }
+
+    public function deleteUser(int $id): void {
+        $user = $this->repository->getById($id);
+        if (!$user) throw new Exception('User not found :3');
+        $this->repository->delete($id);
+    } 
 }

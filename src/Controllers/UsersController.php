@@ -83,4 +83,21 @@ class UsersController {
             return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
         }
     }
+
+    public function delete(Request $request, Response $response, array $args): Response {
+        $id = (int)($args['id'] ?? 0);
+        if ($id <= 0) {
+            $response->getBody()->write(json_encode(['error' => 'Invalid ID!']));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
+
+        try {
+            $this->service->deleteUser($id);
+            $response->getBody()->write(json_encode(['success' => true]));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+        } catch (Exception $error) {
+            $response->getBody()->write(json_encode(['error' => $error->getMessage()]));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
+    }
 }

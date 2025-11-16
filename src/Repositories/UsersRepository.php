@@ -4,6 +4,7 @@ namespace Src\Repositories;
 use Src\Database;
 use Src\Models\User;
 use PDO;
+use Exception;
 
 class UsersRepository {
     private PDO $connection;
@@ -121,5 +122,13 @@ class UsersRepository {
             $row['created_at'],
             $row['updated_at']
         );
+    }
+
+    public function delete(int $id): void {
+        $sql = "DELETE FROM users WHERE id = :id";
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute([':id' => $id]);
+
+        if ($stmt->rowCount() === 0) throw new Exception('Failed to delete user!');
     }
 }
