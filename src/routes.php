@@ -13,4 +13,5 @@ return function (App $app) {
     $app->get('/users', [UsersController::class, 'getAll']);
     $app->post('/users', [UsersController::class, 'create']);
     $app->get('/users/{id}', [UsersController::class, 'getById']);
+    $app->put('/users/{id}', [UsersController::class, 'update']);
 };

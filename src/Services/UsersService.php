@@ -32,4 +32,19 @@ class UsersService {
         }
         return $user;
     }
+
+    public function updateUser(int $id, string $name, string $email): User {
+        $user = $this->repository->getById($id);
+        if (!$user) throw new Exception('User not found :(');
+
+        if ($email !== '') {
+            $existingUser = $this->repository->getByEmail($email);
+            if ($existingUser && $existingUser->getId() !== $id) throw new Exception('E-mail already in use!');
+            $user->setEmail($email);
+        }
+
+        if ($name !== '') $user->setName($name);
+
+        return $this->repository->update($user);
+    }
 }

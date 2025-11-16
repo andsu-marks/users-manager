@@ -88,4 +88,38 @@ class UsersRepository {
             $row['updated_at']
         );
     }
+
+    public function update(User $user): User {
+        $fields = [];
+        $params = [':id' => $user->getId()];
+
+        if ($user->getName() !== '') {
+            $fields[] = "name = :name";
+            $params[':name'] = $user->getName();
+        }
+
+        if ($user->getEmail() !== '') {
+            $fields[] = "email = :email";
+            $params[':email'] = $user->getEmail();
+        }
+
+        $fields[] = "updated_at = NOW()";
+
+        $sql = "UPDATE users SET " . implode(", ", $fields) . " WHERE id = :id
+            RETURNING id, name, email, password, created_at, updated_at
+        ";
+
+        $stmt = $this->connection->prepare($sql);
+        $stmt->execute($params);
+        $row = $stmt->fetch();
+
+        return new User(
+            $row['id'],
+            $row['name'],
+            $row['email'],
+            $row['password'],
+            $row['created_at'],
+            $row['updated_at']
+        );
+    }
 }
