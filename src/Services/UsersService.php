@@ -52,5 +52,11 @@ class UsersService {
         $user = $this->repository->getById($id);
         if (!$user) throw new Exception('User not found :3');
         $this->repository->delete($id);
-    } 
+    }
+
+    public function getUserByEmail(string $email): ?User {
+        $user = $this->repository->getByEmail($email);
+        if (!$user) throw new Exception('User not found :/');
+        return $user;
+    }
 }
