@@ -20,6 +20,17 @@ class UsersController {
 
         try {
             $users = $this->service->getAllUsers($page, $perPage);
+            $links = [];
+
+            if ($users['current_page'] > 1) {
+                $links['prev'] = '/users?page=' . ($users['current_page'] - 1) . '&per_page=' . $perPage;
+            }
+
+            if ($users['current_page'] < $users['total_pages']) {
+                $links['next'] = '/users?page=' . ($users['current_page'] + 1) . '&per_page=' . $perPage;
+            }
+
+            $users['links'] = $links;
             $response->getBody()->write(json_encode($users, JSON_PRETTY_PRINT));
             return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
         } catch (Exception $error) {
