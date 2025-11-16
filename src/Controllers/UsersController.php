@@ -61,5 +61,26 @@ class UsersController {
             $response->getBody()->write(json_encode(['error' => $error->getMessage()]));
             return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
         }
-    } 
+    }
+
+    public function update(Request $request, Response $response, array $args): Response {
+        $id = (int)($args['id'] ?? 0);
+        $body = $request->getParsedBody();
+        $name = $body['name'] ?? '';
+        $email = $body['email'] ?? '';
+
+        if ($id <= 0 || (empty($name) && empty($email))) {
+            $response->getbody()->write(json_encode(['error' => 'Invalid data!']));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
+
+        try {
+            $updatedUser = $this->service->updateUser($id, $name, $email);
+            $response->getBody()->write(json_encode(['success' => true, 'user' => $updatedUser], JSON_PRETTY_PRINT));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+        } catch (Exception $error) {
+            $response->getBody()->write(json_encode(['error' => $error->getMessage()]));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
+    }
 }
