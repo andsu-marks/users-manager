@@ -50,6 +50,11 @@ class UsersController {
             return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
         }
 
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $response->getBody()->write(json_encode(['error' => 'Invalid email format!']));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
+
         try {
             $user = $this->service->createUser($name, $email, $password);
             $response->getBody()->write(json_encode(['success' => true, 'user' => $user], JSON_UNESCAPED_UNICODE));
@@ -89,6 +94,11 @@ class UsersController {
 
         if ($id <= 0 || (empty($name) && empty($email))) {
             $response->getbody()->write(json_encode(['error' => 'Invalid data!']));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $response->getBody()->write(json_encode(['error' => 'Invalid email format!']));
             return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
         }
 
