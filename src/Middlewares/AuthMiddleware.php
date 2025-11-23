@@ -7,6 +7,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Psr\Http\Message\ResponseFactoryInterface;
+use Src\Http\ApiResponse;
 
 class AuthMiddleware {
     private string $secret;
@@ -21,9 +22,8 @@ class AuthMiddleware {
         $authHeader = $request->getHeader('Authorization')[0] ?? '';
 
         if (!str_starts_with($authHeader, 'Bearer ')) {
-            $response = $this->response->createresponse(401);
-            $response->getBody()->write(json_encode(['error' => 'Token missing!']));
-            return $response->withHeader('Content-Type', 'application/json');
+            $response = $this->response->createResponse();
+            return ApiResponse::error($response, 'Token missing!', 401);
         }
 
         $token = substr($authHeader, 7);
@@ -32,9 +32,8 @@ class AuthMiddleware {
             $request = $request->withAttribute('userId', $decoded->sub);
             return $handler->handle($request);
         } catch (\Exception $error) {
-            $response = $this->response->createResponse(401);
-            $response->getBody()->write(json_encode(['error' => $error->getMessage()]));
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(401);
+            $response = $this->response->createResponse();
+            return ApiResponse::error($response, $error->getMessage(), 401);
         }
     } 
 }
