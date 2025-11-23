@@ -1,10 +1,9 @@
 <?php
 namespace Src\Repositories;
 
+use PDO;
 use Src\Database;
 use Src\Models\User;
-use PDO;
-use Exception;
 
 class UsersRepository {
     private PDO $connection;

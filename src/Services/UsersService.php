@@ -3,7 +3,6 @@ namespace Src\Services;
 
 use Src\Repositories\UsersRepository;
 use Src\Models\User;
-use Exception;
 
 class UsersService {
     private Usersrepository $repository;
@@ -33,7 +32,7 @@ class UsersService {
 
     public function createUser(string $name, string $email, string $password): User {
         $existingUser = $this->repository->getByEmail($email);
-        if ($existingUser) throw new Exception('E-mail already registered!', 409); 
+        if ($existingUser) throw new \Exception('E-mail already registered!', 409); 
 
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
         $user = new User(null, $name, $email, $hashedPassword);
@@ -42,17 +41,17 @@ class UsersService {
 
     public function getUserById(int $id): ?User {
         $user = $this->repository->getById($id);
-        if (!$user) throw new Exception('User not found :/', 404);
+        if (!$user) throw new \Exception('User not found :/', 404);
         return $user;
     }
 
     public function updateUser(int $id, string $name, string $email): User {
         $user = $this->repository->getById($id);
-        if (!$user) throw new Exception('User not found :(', 404);
+        if (!$user) throw new \Exception('User not found :(', 404);
 
         if ($email !== '') {
             $existingUser = $this->repository->getByEmail($email);
-            if ($existingUser && $existingUser->getId() !== $id) throw new Exception('E-mail already in use!', 409);
+            if ($existingUser && $existingUser->getId() !== $id) throw new \Exception('E-mail already in use!', 409);
             $user->setEmail($email);
         }
 
@@ -63,22 +62,22 @@ class UsersService {
 
     public function deleteUser(int $id): void {
         $user = $this->repository->getById($id);
-        if (!$user) throw new Exception('User not found :3', 404);
+        if (!$user) throw new \Exception('User not found :3', 404);
         $this->repository->delete($id);
     }
 
     public function getUserByEmail(string $email): ?User {
         $user = $this->repository->getByEmail($email);
-        if (!$user) throw new Exception('User not found :/', 404);
+        if (!$user) throw new \Exception('User not found :/', 404);
         return $user;
     }
 
     public function updatePassword(int $id, string $oldPassword, string $newPassword): void {
         $user = $this->repository->getById($id);
 
-        if (!$user) throw new Exception('User not found :/', 404);
+        if (!$user) throw new \Exception('User not found :/', 404);
         if (!password_verify($oldPassword, $user->getPassword())) {
-            throw new Exception('Old password is incorrect!', 403);
+            throw new \Exception('Old password is incorrect!', 403);
         }
     
         $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
