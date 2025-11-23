@@ -16,8 +16,8 @@ class AuthService {
 
     public function Login(string $email, string $password): array {
         $user = $this->repository->getByEmail($email);
-        if (!$user) throw new \Exception('User not found :/');
-        if (!password_verify($password, $user->getPassword())) throw new \Exception('Incorrect password!');
+        if (!$user) throw new \Exception('User not found :/', 404);
+        if (!password_verify($password, $user->getPassword())) throw new \Exception('Incorrect password!', 403);
         $token = JWT::encode([
                 'sub' => $user->getId(),
                 'email' => $user->getEmail(),
@@ -30,11 +30,7 @@ class AuthService {
 
         return [
             'token' => $token,
-            'user' => [
-                'id' => $user->getId(),
-                'name' => $user->getName(),
-                'email' => $user->getEmail()
-            ]
+            'user' => $user
         ];
     }
 }

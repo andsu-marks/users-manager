@@ -4,6 +4,7 @@ namespace Src\Controllers;
 use Src\Services\AuthService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Src\Http\ApiResponse;
 
 class AuthController {
     private AuthService $service;
@@ -18,17 +19,14 @@ class AuthController {
         $password = $body['password'] ?? '';
 
         if (empty($email) || empty($password)) {
-            $response->getBody()->write(json_encode(['error' => 'Email and password are required!']));
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+            return ApiResponse::error($response, 'E-mail and password are required!', 400);
         }
 
         try {
             $token = $this->service->login($email, $password);
-            $response->getBody()->write(json_encode(['token' => $token], JSON_PRETTY_PRINT));
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+            return ApiResponse::success($response, $token, 200);
         } catch (\Exception $error) {
-            $response->getBody()->write(json_encode(['error' => $error->getMessage()]));
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(401); 
+            return ApiResponse::error($response, $error->getMessage(), $error->getCode() ?: 401);
         }
     }
 }
