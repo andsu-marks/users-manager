@@ -5,13 +5,36 @@ use PDO;
 use Src\Database;
 use Src\Models\User;
 
+/**
+ * Repository class responsible for CRUD operations on users.
+ * 
+ * Handles all database interactions for User model, including fetching, creating, deleting and counting records.
+ */
 class UsersRepository {
+    /**
+     * PDO database connection instance.
+     * 
+     * @var PDO
+     */
     private PDO $connection;
 
+    /**
+     * UsersRepository constructor.
+     * 
+     * Initialize the database connection via the Database class
+     */
     public function __construct() {
         $this->connection = Database::getConnection();
     }
 
+    /**
+     * Retrieves a paginated list of users.
+     * 
+     * @param int $page Page number (1-based)
+     * @param int $perPage Number of users per page
+     * 
+     * @return User[] Array of User objects
+     */
     public function getAll(int $page, int $perPage): array {
         $limit = $perPage;
         $offset = ($page - 1) * $perPage;
@@ -35,6 +58,13 @@ class UsersRepository {
         return $users;
     }
 
+    /**
+     * Creates a new user record in the database.
+     * 
+     * @param User $user User object with name, email and password.
+     * 
+     * @return User the newly created User object with ID and timestamps.
+     */
     public function create(User $user): User {
         $sql = 'INSERT INTO users (name, email, password)
             VALUES (:name, :email)
@@ -58,6 +88,13 @@ class UsersRepository {
         );
     }
 
+    /**
+     * Retrieves a user by e-mail.
+     * 
+     * @param string $email User's email
+     * 
+     * @return User|null User object if found, null otherwise
+     */
     public function getByEmail(string $email): ?USer {
         $sql = 'SELECT * FROM users WHERE email = :email LIMIT 1';
         $stmt = $this->connection->prepare($sql);
@@ -75,6 +112,13 @@ class UsersRepository {
         );
     }
 
+    /**
+     * Retrieves a user by ID.
+     * 
+     * @param int $id User ID.
+     * 
+     * @return User|null User object if found, null otherwise.
+     */
     public function getById(int $id): ?User {
         $sql = 'SELECT * FROM users WHERE id = :id LIMIT 1';
         $stmt = $this->connection->prepare($sql);
@@ -92,6 +136,13 @@ class UsersRepository {
         );
     }
 
+    /**
+     * Updates an existing user.
+     * 
+     * @param User $user object with updated fields.
+     * 
+     * @return User Updated User object.
+     */
     public function update(User $user): User {
         $fields = [];
         $params = [':id' => $user->getId()];
@@ -126,18 +177,31 @@ class UsersRepository {
         );
     }
 
+    /**
+     * Deletes a user by ID
+     * 
+     * @param int $id User ID
+     */
     public function delete(int $id): void {
         $sql = "DELETE FROM users WHERE id = :id";
         $stmt = $this->connection->prepare($sql);
         $stmt->execute([':id' => $id]);
     }
 
+    /**
+     * Counts the total number of users.
+     * 
+     * @return int Total user count.
+     */
     public function countAll(): int {
         $sql = "SELECT COUNT(*) FROM users";
         $stmt = $this->connection->query($sql);
         return (int)$stmt->fetchColumn();
     }
 
+    /**
+     * Updates the password of a user.
+     */
     public function updatePassword(User $user): void {
         $sql = "UPDATE users SET password = :password, updated_at = NOW() WHERE id = :id";
         $stmt = $this->connection->prepare($sql);
