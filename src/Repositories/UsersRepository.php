@@ -17,7 +17,7 @@ class UsersRepository {
         $limit = $perPage;
         $offset = ($page - 1) * $perPage;
 
-        $sql = 'SELECT * FROM users ORDER BY id DESC LIMIT :limit OFFSET :offset';
+        $sql = 'SELECT * FROM users ORDER BY id DESC LIMIT :limit::INT OFFSET :offset::INT';
         $stmt = $this->connection->prepare($sql);
         $stmt->execute([':limit' => $limit, ':offset' => $offset]);
         $users = [];
@@ -38,7 +38,7 @@ class UsersRepository {
 
     public function create(User $user): User {
         $sql = 'INSERT INTO users (name, email, password)
-            VALUES (:name, :email, :password)
+            VALUES (:name, :email)
             RETURNING id, created_at, updated_at
         ';
         $stmt = $this->connection->prepare($sql);
@@ -52,9 +52,8 @@ class UsersRepository {
         $row = $stmt->fetch();
         return new User(
             $row['id'],
-            $user->getName(),
-            $user->getEmail(),
-            $user->getPassword(),
+            $row['name'],
+            $row['email'],
             $row['created_at'],
             $row['updated_at']
         );
@@ -132,8 +131,6 @@ class UsersRepository {
         $sql = "DELETE FROM users WHERE id = :id";
         $stmt = $this->connection->prepare($sql);
         $stmt->execute([':id' => $id]);
-
-        if ($stmt->rowCount() === 0) throw new Exception('Failed to delete user!');
     }
 
     public function countAll(): int {
