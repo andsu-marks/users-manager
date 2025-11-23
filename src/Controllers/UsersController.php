@@ -4,7 +4,6 @@ namespace Src\Controllers;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Src\Services\UsersService;
-use Exception;
 use Src\Http\ApiResponse;
 
 class UsersController {
@@ -33,7 +32,7 @@ class UsersController {
 
             $users['links'] = $links;
             return ApiResponse::success($response, $users, 200);
-        } catch (Exception $error) {
+        } catch (\Exception $error) {
             return ApiResponse::error($response, $error->getMessage(), 400);
         }
     }
@@ -55,7 +54,7 @@ class UsersController {
         try {
             $user = $this->service->createUser($name, $email, $password);
             return ApiResponse::success($response, $user->jsonSerialize(), 201);
-        } catch (Exception $error) {
+        } catch (\Exception $error) {
             return ApiResponse::error($response, $error->getMessage(), 409);
         }
     }
@@ -67,7 +66,7 @@ class UsersController {
         try {
             $user = $this->service->getUserById($id);
             return ApiResponse::success($response, $user->jsonSerialize(), 200);
-        } catch (Exception $error) {
+        } catch (\Exception $error) {
             return ApiResponse::error($response, $error->getMessage(), $error->getCode() ?: 400);
         }
     }
@@ -87,7 +86,7 @@ class UsersController {
         try {
             $updatedUser = $this->service->updateUser($id, $name, $email);
             return ApiResponse::success($response, $updatedUser->jsonSerialize(), 200);
-        } catch (Exception $error) {
+        } catch (\Exception $error) {
             return ApiResponse::error($response, $error->getMessage(), $error->getCode() ?: 400);
         }
     }
@@ -99,7 +98,7 @@ class UsersController {
         try {
             $this->service->deleteUser($id);
             return $response->withStatus(204);
-        } catch (Exception $error) {
+        } catch (\Exception $error) {
             return ApiResponse::error($response, $error->getMessage(), 400);
         }
     }
@@ -111,7 +110,7 @@ class UsersController {
         try {
             $user = $this->service->getUserByEmail($email);
             return ApiResponse::success($response, $user->jsonSerialize(), 200);
-        } catch (Exception $error) {
+        } catch (\Exception $error) {
             return ApiResponse::error($response, $error->getMessage(), $error->getCode() ?: 400);
         }
     }
@@ -130,7 +129,7 @@ class UsersController {
         try {
             $this->service->updatePassword($id, $oldPassword, $newPassword);
             return $response->withStatus(204);
-        } catch (Exception $error) {
+        } catch (\Exception $error) {
             return ApiResponse::error($response, $error->getMessage(), $error->getCode() ?: 400);
         }
     }

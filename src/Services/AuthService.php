@@ -1,9 +1,8 @@
 <?php 
 namespace Src\Services;
 
-use Src\Repositories\UsersRepository;
 use Firebase\JWT\JWT;
-use Firebase\JWT\Key;
+use Src\Repositories\UsersRepository;
 
 class AuthService {
     private UsersRepository $repository;
