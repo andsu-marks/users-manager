@@ -5,6 +5,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Src\Services\UsersService;
 use Exception;
+use Src\Http\ApiResponse;
 
 class UsersController {
     private UsersService $service;
@@ -31,11 +32,9 @@ class UsersController {
             }
 
             $users['links'] = $links;
-            $response->getBody()->write(json_encode($users, JSON_PRETTY_PRINT));
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+            return ApiResponse::success($response, $users, 200);
         } catch (Exception $error) {
-            $response->getBody()->write(json_encode(['error' => $error->getMessage()]));
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+            return ApiResponse::error($response, $error->getMessage(), 400);
         }
     }
 
@@ -46,43 +45,30 @@ class UsersController {
         $password = $body['password'] ?? '';
 
         if (empty($name) || empty($email) || empty($password)) {
-            $response->getBody()->write(json_encode(['error' => 'Name, email and password ar required!']));
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+            return ApiResponse::error($response, 'Name, e-mail and password are required!', 400);
         }
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $response->getBody()->write(json_encode(['error' => 'Invalid email format!']));
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+            return ApiResponse::error($response, 'Invalid e-mail format!', 400);
         }
 
         try {
             $user = $this->service->createUser($name, $email, $password);
-            $response->getBody()->write(json_encode(['success' => true, 'user' => $user], JSON_UNESCAPED_UNICODE));
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(201);
+            return ApiResponse::success($response, $user->jsonSerialize(), 201);
         } catch (Exception $error) {
-            $response->getBody()->write(json_encode(
-                ['success' => false, 'message' => $error->getMessage()],
-                JSON_UNESCAPED_UNICODE
-            ));
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(409);
+            return ApiResponse::error($response, $error->getMessage(), 409);
         }
     }
 
     public function getById(Request $request, Response $response, array $args): Response {
         $id = (int)($args['id'] ?? 0);
-
-        if ($id <= 0) {
-            $response->getBody()->write(json_encode(['error' => 'Invalid ID!']));
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
-        }
+        if ($id <= 0) return ApiResponse::error($response, 'Invalid ID!', 400);
 
         try {
             $user = $this->service->getUserById($id);
-            $response->getBody()->write(json_encode($user->jsonSerialize(), JSON_PRETTY_PRINT));
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+            return ApiResponse::success($response, $user->jsonSerialize(), 200);
         } catch (Exception $error) {
-            $response->getBody()->write(json_encode(['error' => $error->getMessage()]));
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+            return ApiResponse::error($response, $error->getMessage(), $error->getCode() ?: 400);
         }
     }
 
@@ -92,57 +78,41 @@ class UsersController {
         $name = $body['name'] ?? '';
         $email = $body['email'] ?? '';
 
-        if ($id <= 0 || (empty($name) && empty($email))) {
-            $response->getbody()->write(json_encode(['error' => 'Invalid data!']));
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
-        }
+        if ($id <= 0 || ($name === '' && $email === '')) return ApiResponse::error($response, 'Invalid data!', 400);
 
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $response->getBody()->write(json_encode(['error' => 'Invalid email format!']));
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return ApiResponse::error($response, 'Invalid e-mail format!', 400);
         }
 
         try {
             $updatedUser = $this->service->updateUser($id, $name, $email);
-            $response->getBody()->write(json_encode(['success' => true, 'user' => $updatedUser], JSON_PRETTY_PRINT));
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+            return ApiResponse::success($response, $updatedUser->jsonSerialize(), 200);
         } catch (Exception $error) {
-            $response->getBody()->write(json_encode(['error' => $error->getMessage()]));
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+            return ApiResponse::error($response, $error->getMessage(), $error->getCode() ?: 400);
         }
     }
 
     public function delete(Request $request, Response $response, array $args): Response {
         $id = (int)($args['id'] ?? 0);
-        if ($id <= 0) {
-            $response->getBody()->write(json_encode(['error' => 'Invalid ID!']));
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
-        }
+        if ($id <= 0) return ApiResponse::error($response, 'Invalid ID!', 400);
 
         try {
             $this->service->deleteUser($id);
-            $response->getBody()->write(json_encode(['success' => true]));
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+            return $response->withStatus(204);
         } catch (Exception $error) {
-            $response->getBody()->write(json_encode(['error' => $error->getMessage()]));
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+            return ApiResponse::error($response, $error->getMessage(), 400);
         }
     }
 
-    public function getByEmail(Request $request, Response $response, array $args): Response {
+    public function getByEmail(Request $request, Response $response): Response {
         $email = $request->getQueryParams()['email'] ?? '';
-        if ($email === '') {
-            $response->getBody()->write(json_encode(['error' => 'Invalid e-mail!']));
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
-        }
+        if ($email === '') return ApiResponse::error($response, 'Invalid e-mail!', 400);
 
         try {
             $user = $this->service->getUserByEmail($email);
-            $response->getBody()->write(json_encode($user->jsonSerialize(), JSON_PRETTY_PRINT));
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+            return ApiResponse::success($response, $user->jsonSerialize(), 200);
         } catch (Exception $error) {
-            $response->getBody()->write(json_encode(['error' => $error->getMessage()]));
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+            return ApiResponse::error($response, $error->getMessage(), $error->getCode() ?: 400);
         }
     }
 
@@ -154,17 +124,14 @@ class UsersController {
         $newPassword = $body['new_password'] ?? '';
 
         if ($id <= 0 || empty($oldPassword) || empty($newPassword)) {
-            $response->getBody()->write(json_encode(['error' => 'Invalid data!']));
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+            return ApiResponse::error($response, 'Invalid data!', 400);
         }
 
         try {
             $this->service->updatePassword($id, $oldPassword, $newPassword);
-            $response->getBody()->write(json_encode(['success' => true]));
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(200);
+            return $response->withStatus(204);
         } catch (Exception $error) {
-            $response->getBody()->write(json_encode(['error' => $error->getMessage()]));
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+            return ApiResponse::error($response, $error->getMessage(), $error->getCode() ?: 400);
         }
     }
 }

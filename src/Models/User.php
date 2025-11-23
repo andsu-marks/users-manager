@@ -41,7 +41,6 @@ class User implements \JsonSerializable {
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
-            'password' => $this->password,
             'created_at' => $this->createdAt,
             'updated_at' => $this->updatedAt
         ];
