@@ -1,0 +1,12 @@
+openapi: 3.0.3
+info:
+  title: Users Manager API
+  version: 1.0.0
+
+paths:
+  /:
+    get:
+      summary: Hello world
+      responses:
+        '200':
+          description: OK
