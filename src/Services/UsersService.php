@@ -56,7 +56,7 @@ class UsersService {
             'per_page' =>$perPage,
             'total_records' => $totalRecords,
             'total_pages' => $totalPages,
-            'data' => $users
+            'users' => $users
         ];
     }
 
