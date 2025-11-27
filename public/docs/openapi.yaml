@@ -60,7 +60,7 @@ paths:
                 missing_fields:
                   value:
                     success: false
-                    message: "E-mail and password are required!"
+                    error: "E-mail and password are required!"
 
         '401':
           description: Invalid credentials
@@ -72,7 +72,7 @@ paths:
                 invalid_credentials:
                   value:
                     success: false
-                    message: "Invalid credentials!"
+                    error: "Invalid credentials!"
 
         '403':
           description: Invalid password
@@ -84,7 +84,7 @@ paths:
                 invalid_password:
                   value:
                     success: false
-                    message: "Invalid password!"
+                    error: "Invalid password!"
 
         '404':
           description: User not found
@@ -96,7 +96,7 @@ paths:
                 user_not_found:
                   value:
                     success: false
-                    message: "User not found :/"
+                    error: "User not found :/"
 
   /users:
     get:
@@ -179,12 +179,118 @@ paths:
                           next:
                             type: string
                             example: "/users/page=3&per_page=3"
+
+  /users/{id}:
+    get:
+      summary: Get user by id
+      description: Return a single user based on the provided ID.
+      tags:
+        - User
+      security:
+        - BearerAuth: []
+      
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: User ID
+          schema:
+            type: integer
+            example: 5
+      
+      responses:
+        '200':
+          description: Return user successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/User'
+
         '400':
-          description: Unexpected error
+          description: The provided ID is incorrect
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+              examples:
+                invalid_id:
+                  value:
+                    success: false
+                    error: Invalid ID!
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                user_not_found:
+                  value:
+                    success: false
+                    error: User not found :/
+
+  /users/by-email:
+    get:
+      summary: Get user by e-mail
+      description: Return a single user based on the provided e-mail
+      tags:
+        - User
+      security:
+        - BearerAuth: []
+      
+      parameters:
+        - name: email
+          in: query
+          required: true
+          description: User e-mail
+          schema:
+            type: string
+            format: email
+            example: john@example.com
+
+      responses:
+        '200':
+          description: User returned successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/User'
+
+        '400':
+          description: E-mail not provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_email:
+                  value:
+                    success: false
+                    error: Invalid e-mail!
+
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                user_not_found:
+                  value:
+                    success: false
+                    error: User not found :/
 
 components:
   schemas:
@@ -216,7 +322,7 @@ components:
         success:
           type: boolean
           example: false
-        message:
+        error:
           type: string
           example: "Unexpected error"
 
