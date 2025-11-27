@@ -94,7 +94,7 @@ class UsersController {
             $user = $this->service->createUser($name, $email, $password);
             return ApiResponse::success($response, $user->jsonSerialize(), 201);
         } catch (\Exception $error) {
-            return ApiResponse::error($response, $error->getMessage(), 409);
+            return ApiResponse::error($response, $error->getMessage(), $error->getCode() ?: 400);
         }
     }
 

@@ -180,6 +180,79 @@ paths:
                             type: string
                             example: "/users/page=3&per_page=3"
 
+    post:
+      summary: Create user
+      description: Create a new user using the provided data.
+      tags:
+        - User
+      security:
+        - BearerAuth: []
+      
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+                - password
+              properties:
+                name:
+                  type: string
+                  example: John
+                email:
+                  type: string
+                  format: email
+                  example: john@example.com
+                password:
+                  type: string
+                  format: password
+                  example: "12345678"
+
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/User'
+
+        '400':
+          description: Validation errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                missing_fields:
+                  value:
+                    success: false
+                    error: "Name, e-mail and password are required!"
+                invalid_email_format:
+                  value:
+                    success: false
+                    error: "Invalid e-mail format!"
+
+        '409':
+          description: E-mail already registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                email_already_registered:
+                  value:
+                    success: false
+                    error: "E-mail already registered!"
+
   /users/{id}:
     get:
       summary: Get user by id
@@ -223,6 +296,7 @@ paths:
                   value:
                     success: false
                     error: Invalid ID!
+
         '404':
           description: User not found
           content:
