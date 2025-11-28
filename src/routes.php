@@ -19,7 +19,7 @@ return function (App $app) {
         $group->get('/{id}', [UsersController::class, 'getById']);
         $group->put('/{id}', [UsersController::class, 'update']);
         $group->delete('/{id}', [UsersController::class, 'delete']);
-        $group->put('/{id}/password', [UsersController::class, 'updatePassword']);
+        $group->map(['PATCH'], '/{id}', [UsersController::class, 'updatePassword']);
     })->add(new AuthMiddleware($app->getResponseFactory()));
 
     $app->post('/login', [AuthController::class, 'login']);
