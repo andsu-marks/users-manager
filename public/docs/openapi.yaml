@@ -422,6 +422,77 @@ paths:
                 value:
                   success: false
                   error: "User not found :3"
+        
+    patch:
+      summary: Update user password
+      description: Updates the password of a user by checking the old password and applying the new one.
+      tags:
+        - User
+      security:
+        - BearerAuth: []
+
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: User ID
+          schema:
+            type: integer
+            example: 1
+      
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - old_password
+                - new_password
+              properties:
+                old_password:
+                  type: string
+                  example: "12345678"
+                new_password:
+                  type: string
+                  example: "abcdefgh"
+      
+      responses:
+        '204':
+          description: Password updated successfully
+        
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                value:
+                  success: false
+                  error: "Invalid data!"
+
+        '403':
+          description: Old password is incorrect
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                value:
+                  success: false
+                  error: "Old password is incorrect!"
+        
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                value:
+                  success: false
+                  error: "User not found :/"
 
   /users/by-email:
     get:
