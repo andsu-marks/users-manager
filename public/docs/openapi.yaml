@@ -309,6 +309,77 @@ paths:
                     success: false
                     error: User not found :/
 
+    put:
+      summary: Update user
+      description: Update name or e-mail of a user based on the provided ID using the provided data.
+      tags:
+        - User
+      secutiry:
+        - BearerAuth: []
+      
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: user ID
+          schema:
+            type: integer
+            example: 1
+
+      responses:
+        '200':
+          description: Update executed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/User'
+
+        '400':
+          description: Validation errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_data:
+                  value:
+                    success: false
+                    error: "Invalid data!"
+                invalid_email_format:
+                  value:
+                    success: false
+                    error: "Invalid e-mail format!"
+        
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                user_not_found:
+                  value:
+                    success: false
+                    error: "User not found :("
+        
+        '409':
+          description: E-mail already in use
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                email_already_in_use:
+                  value:
+                    success: false
+                    error: "E-mail already in use!"
+
   /users/by-email:
     get:
       summary: Get user by e-mail
