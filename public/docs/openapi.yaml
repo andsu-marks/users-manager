@@ -380,6 +380,49 @@ paths:
                     success: false
                     error: "E-mail already in use!"
 
+    delete:
+      summary: Delete user
+      description: Delete a single user with provided ID
+      tags:
+        - User
+      security:
+        - BearerAuth: []
+      
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: User ID
+          schema:
+            type: integer
+            example: 1
+      
+      responses:
+        '204':
+          description: User deleted successfully
+        
+        '400':
+          description: Invalid ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                value:
+                  success: false
+                  error: "Invalid ID!"
+        
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                value:
+                  success: false
+                  error: "User not found :3"
+
   /users/by-email:
     get:
       summary: Get user by e-mail
