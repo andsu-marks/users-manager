@@ -158,27 +158,30 @@ paths:
                           - id: 1
                             name: John
                             email: john@example.com
-                            created_at: "2025-11-10 03:27:16"
-                            updated_at: "2025-11-10 03:27:16"
+                            created_at: "2025-11-10 03:27:16.619026"
+                            updated_at: "2025-11-10 03:27:16.619026"
                           - id: 2
                             name: Jane
                             email: jane@example.com
-                            created_at: "2025-11-16 16:00:33"
-                            updated_at: "2025-11-16 16:00:33"
+                            created_at: "2025-11-16 16:00:33.620759"
+                            updated_at: "2025-11-16 16:00:33.620759"
                           - id: 3
                             name: Jesse
                             email: jesse@example.com
-                            created_at: "2025-11-12 21:11:04"
-                            updated_at: "2025-11-17 10:44:12"
+                            created_at: "2025-11-12 21:11:04.453539"
+                            updated_at: "2025-11-17 10:44:12.945142"
                       links:
                         type: object
                         properties:
                           prev:
                             type: string
-                            example: "/users/page=1&per_page=3"
+                            example: "/users?page=1&per_page=3"
                           next:
                             type: string
-                            example: "/users/page=3&per_page=3"
+                            example: "/users?page=3&per_page=3"
+
+        "401":
+          $ref: '#/components/responses/UnauthorizedError'
 
     post:
       summary: Create user
@@ -241,6 +244,9 @@ paths:
                     success: false
                     error: "Invalid e-mail format!"
 
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
         '409':
           description: E-mail already registered
           content:
@@ -297,6 +303,9 @@ paths:
                     success: false
                     error: Invalid ID!
 
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
         '404':
           description: User not found
           content:
@@ -314,7 +323,7 @@ paths:
       description: Update name or e-mail of a user based on the provided ID using the provided data.
       tags:
         - User
-      secutiry:
+      security:
         - BearerAuth: []
       
       parameters:
@@ -325,6 +334,22 @@ paths:
           schema:
             type: integer
             example: 1
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "John"
+                email:
+                  type: string
+                  format: email
+                  example: "john@example.com"
+              minProperties: 1
 
       responses:
         '200':
@@ -355,6 +380,9 @@ paths:
                   value:
                     success: false
                     error: "Invalid e-mail format!"
+        
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
         
         '404':
           description: User not found
@@ -408,9 +436,13 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
               example:
-                value:
-                  success: false
-                  error: "Invalid ID!"
+                invalid_id:
+                  value:
+                    success: false
+                    error: "Invalid ID!"
+
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
         
         '404':
           description: User not found
@@ -419,9 +451,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
               example:
-                value:
-                  success: false
-                  error: "User not found :3"
+                user_not_found:
+                  value:
+                    success: false
+                    error: "User not found :3"
         
     patch:
       summary: Update user password
@@ -468,9 +501,13 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
               example:
-                value:
-                  success: false
-                  error: "Invalid data!"
+                invalid_data:
+                  value:
+                    success: false
+                    error: "Invalid data!"
+
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
 
         '403':
           description: Old password is incorrect
@@ -479,9 +516,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
               example:
-                value:
-                  success: false
-                  error: "Old password is incorrect!"
+                old_password_incorrect:
+                  value:
+                    success: false
+                    error: "Old password is incorrect!"
         
         '404':
           description: User not found
@@ -490,9 +528,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
               example:
-                value:
-                  success: false
-                  error: "User not found :/"
+                user_not_found:
+                  value:
+                    success: false
+                    error: "User not found :/"
 
   /users/by-email:
     get:
@@ -538,6 +577,9 @@ paths:
                   value:
                     success: false
                     error: Invalid e-mail!
+
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
 
         '404':
           description: User not found
@@ -585,8 +627,23 @@ components:
           type: string
           example: "Unexpected error"
 
-  securitySchemas:
+  securitySchemes:
     BearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
+
+  responses:
+    UnauthorizedError:
+      description: Token invalid or missing
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: false
+              message:
+                type: string
+                example: "Token missing!"
